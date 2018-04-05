@@ -1,23 +1,42 @@
 package controllers
 
+import akka.util.Timeout
+import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
+import play.api.libs.json.Json
 import play.api.mvc._
+import views.html._
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.DurationInt
+
+
 @Singleton
-class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class HomeController @Inject()(val controllerComponents: ControllerComponents,
+                               indexTemplate: index)
+                              (implicit val ec: ExecutionContext)
+  extends BaseController with LazyLogging {
 
-  /**
-   * Create an Action to render an HTML page with a welcome message.
-   * The configuration in the `routes` file means that this method
-   * will be called when the application receives a `GET` request with
-   * a path of `/`.
-   */
+  implicit val defaultTimeout = Timeout(60.seconds)
+
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+    Ok(indexTemplate())
+  }
+
+  def register() = Action(parse.json){ implicit request => {
+    val email = (request.body \ "email").as[String]
+    val password = (request.body \ "psw").as[String]
+    val comment = (request.body \ "comment").asOpt[String]
+    val sLanguages = (request.body \ "sLanguages").toOption
+    val pLanguage = (request.body \ "pLanguage").asOpt[String]
+    logger.info(s"requestBody: ${request.body}")
+    logger.info(s"email: $email")
+    logger.info(s"psw: $password")
+    logger.info(s"comment: $comment")
+    logger.info(s"sLanguages: $sLanguages")
+    logger.info(s"pLanguage: $pLanguage")
+      Ok(Json.toJson("Successful!"))
+    }
   }
 
 }

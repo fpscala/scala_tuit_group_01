@@ -1,18 +1,39 @@
-<!-- https://www.playframework.com/documentation/latest/SettingsLogger -->
 <configuration>
 
   <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>${application.home:-.}/logs/application.log</file>
+    <file>${application.home}/logs/application.log</file>
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator>
+        <matcher>
+          <Name>illegalHeader</Name>
+          <regex>Illegal 'user-agent' header</regex>
+        </matcher>
+        <expression>illegalHeader.matches(formattedMessage)</expression>
+      </evaluator>
+      <OnMismatch>NEUTRAL</OnMismatch>
+      <OnMatch>DENY</OnMatch>
+    </filter>
     <encoder>
       <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
     </encoder>
   </appender>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator>
+        <matcher>
+          <Name>illegalHeader</Name>
+          <regex>Illegal 'user-agent' header</regex>
+        </matcher>
+        <expression>illegalHeader.matches(formattedMessage)</expression>
+      </evaluator>
+      <OnMismatch>NEUTRAL</OnMismatch>
+      <OnMatch>DENY</OnMatch>
+    </filter>
     <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+      <pattern>%date %coloredLevel %logger{15} - %message%n%xException{10}</pattern>
     </encoder>
   </appender>
 
@@ -26,12 +47,7 @@
 
   <logger name="play" level="INFO" />
   <logger name="application" level="DEBUG" />
-
-  <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
-  <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
-  <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
-  <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
-  <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
+  <logger name="controllers" level="DEBUG" />
 
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
