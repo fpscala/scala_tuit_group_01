@@ -4,6 +4,7 @@
 # ~~~~
 
 GET     /                           @controllers.HomeController.index
+GET     /users                      @controllers.HomeController.users
 POST    /register/                  @controllers.HomeController.register
 
 # Map static resources from the /public folder to the /assets URL path
